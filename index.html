@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>2024 MAcc Course Rankings</title>
   <style>
-    : root {
+    :root {
       --bg: #0b1020;
       --card: #121a33;
       --text: #e8ecff;
@@ -174,4 +174,58 @@
           <tbody>
             <tr>
               <td class="rank">1</td>
-              <
+              <td>Q58_3</td>
+              <td class="avg">3.64</td>
+            </tr>
+            <tr>
+              <td class="rank">2</td>
+              <td>Q58_1</td>
+              <td class="avg">3.46</td>
+            </tr>
+            <tr>
+              <td class="rank">3</td>
+              <td>Q58_2</td>
+              <td class="avg">3.36</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p class="note">
+          Download the full ranking file: <a href="output/course_ranking_2024.csv">output/course_ranking_2024.csv</a>
+        </p>
+      </section>
+
+      <aside class="card">
+        <h2>How to Grade / Verify</h2>
+        <ul style="margin: 10px 0 0; padding-left: 18px; color: var(--muted);">
+          <li>Raw data file is stored in <code>/data</code> in the repo.</li>
+          <li>Analysis script: <code>src/analyze.py</code></li>
+          <li>Workflow run artifacts come from GitHub Actions.</li>
+          <li>Generated outputs saved in <code>/output</code>.</li>
+        </ul>
+        <p class="note" style="margin-top: 12px;">
+          Figure file: <a href="output/course_ranking_2024.png">output/course_ranking_2024.png</a>
+        </p>
+      </aside>
+    </div>
+
+    <section class="card">
+      <h2>Figure: 2024 Ranking Visualization</h2>
+      <div class="figure-wrap">
+        <img src="output/course_ranking_2024.png" alt="Horizontal bar chart of average course ratings for 2024" />
+      </div>
+      <p class="note">
+        If the image doesn’t load, confirm the file exists at <code>output/course_ranking_2024.png</code>
+        and that the filename matches exactly (including capitalization).
+      </p>
+    </section>
+  </main>
+
+  <footer>
+    <div>
+      Built for a reproducible grading workflow: GitHub Actions runs the analysis and saves outputs.
+      You can host this page using GitHub Pages by enabling Pages for the <code>main</code> branch.
+    </div>
+  </footer>
+</body>
+</html>
