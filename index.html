@@ -1,51 +1,177 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import os
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2024 MAcc Course Rankings</title>
+  <style>
+    : root {
+      --bg: #0b1020;
+      --card: #121a33;
+      --text: #e8ecff;
+      --muted: #b9c2ff;
+      --accent: #7aa2ff;
+      --border: rgba(255,255,255,0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      background: radial-gradient(1200px 600px at 20% 10%, rgba(122,162,255,0.25), transparent 55%),
+                  radial-gradient(900px 500px at 90% 30%, rgba(122,255,210,0.14), transparent 60%),
+                  var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    header {
+      padding: 44px 18px 22px;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 3.3vw, 42px);
+      letter-spacing: -0.02em;
+    }
+    p { margin: 0 0 12px; color: var(--muted); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-# Load dataset
-df = pd.read_excel("data/Grad Program Exit Survey Data 2024.xlsx")
+    main {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 18px 60px;
+      display: grid;
+      gap: 18px;
+    }
 
-# Remove metadata rows
-df_clean = df.iloc[2:].copy()
+    .grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1.2fr 0.8fr;
+    }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+    }
 
-# Identify rating columns
-likert_cols = [col for col in df_clean.columns if col.startswith("Q58_")]
+    .card {
+      background: rgba(18, 26, 51, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-left: 8px;
+      vertical-align: middle;
+    }
 
-# Extract readable names
-course_names = df.iloc[0][likert_cols].values
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+    th, td {
+      padding: 10px 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      color: var(--muted);
+      font-weight: 600;
+    }
+    tr:last-child td { border-bottom: none; }
+    .rank {
+      font-weight: 700;
+      width: 70px;
+    }
+    .avg {
+      width: 150px;
+      font-variant-numeric: tabular-nums;
+    }
 
-# Map Likert scale
-likert_map = {
-    "Strongly Disagree": 1,
-    "Disagree": 2,
-    "Neither disagree or agree": 3,
-    "Agree": 4,
-    "Strongly Agree": 5
-}
+    .figure-wrap {
+      margin-top: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.15);
+    }
+    img {
+      width: 100%;
+      display: block;
+    }
 
-ratings = df_clean[likert_cols].replace(likert_map)
-ratings = ratings.apply(pd.to_numeric, errors='coerce')
+    .note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: #f3f5ff;
+    }
 
-# Compute averages
-mean_ratings = ratings.mean().reset_index()
-mean_ratings.columns = ["Course_Column", "Average_Rating"]
-mean_ratings["Course_Name"] = course_names
-mean_ratings = mean_ratings.sort_values(
-    by="Average_Rating",
-    ascending=False
-).reset_index(drop=True)
+    footer {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 0 18px 30px;
+      color: var(--muted);
+      font-size: 13px;
+      opacity: 0.95;
+    }
+  </style>
+</head>
 
-mean_ratings["Rank"] = mean_ratings.index + 1
+<body>
+  <header>
+    <h1>2024 MAcc Course Rankings <span class="pill">Student Exit Survey</span></h1>
+    <p>
+      This site summarizes course/program rankings computed from the 2024 graduate program exit survey.
+      The analysis converts Likert responses to numeric scores (1–5), computes average ratings, ranks items,
+      and generates a figure.
+    </p>
+    <p class="note">
+      Outputs are produced by the Python script in <code>src/analyze.py</code> and saved in <code>/output</code>.
+    </p>
+  </header>
 
-# Save outputs
-os.makedirs("output", exist_ok=True)
-mean_ratings.to_csv("output/course_ranking_2024.csv", index=False)
+  <main>
+    <div class="grid">
+      <section class="card">
+        <h2>Ranking (Highest → Lowest)</h2>
+        <p class="note">
+          Column labels below map to survey items in the dataset. If you later swap in real course names,
+          you can update this table or auto-load from the CSV.
+        </p>
 
-plt.figure()
-plt.barh(mean_ratings["Course_Name"], mean_ratings["Average_Rating"])
-plt.gca().invert_yaxis()
-plt.xlabel("Average Rating")
-plt.ylabel("Course")
-plt.title("2024 Course Rankings Based on Student Ratings")
-plt.savefig("output/course_ranking_2024.png")
-plt.close()
+        <table aria-label="Course ranking table">
+          <thead>
+            <tr>
+              <th class="rank">Rank</th>
+              <th>Survey Column</th>
+              <th class="avg">Avg Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="rank">1</td>
+              <
